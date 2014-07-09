@@ -10,13 +10,16 @@
 \usepackage{graphicx}
 \usepackage{color}
 
+%(Thanks, http://www.terminally-incoherent.com/blog/2007/09/19/latex-squeezing-the-vertical-white-space/)
+\usepackage{mdwlist} % for compact lists 
+
 %\usepackage{hyperref}
 \usepackage[pagebackref=true,breaklinks=true,letterpaper=true,
 colorlinks=true,urlcolor=blue,citecolor=blue,bookmarks=false,
 pdfborder={0 0 0}]{hyperref}
 
 \usepackage{anysize} 		% margin package sets tighter margins
-\marginsize{1.0in}{0.8in}{0.2in}{1.0in} 	% small margins - left, right, top, bottom
+\marginsize{1.0in}{1.0in}{0.5in}{1.0in} 	% small margins - left, right, top, bottom
 
 \begin{document}
 %\author{Yekaterina Kharitonova}
@@ -28,7 +31,9 @@ pdfborder={0 0 0}]{hyperref}
 \noindent
 {\Large \bf Getting started with Bisque}\\ 
 
-This document outlines steps needed to get started with Bisque~\cite{Bisque}.
+This document is intended for users who would like to integrate their analysis code into the Bisque system.
+Assuming that you already have that code and the input  required to run it (files and parameters), this overview
+outlines steps needed to get started with Bisque~\cite{Bisque}.
 %(\url{http://www.bioimage.ucsb.edu/downloads/Bisque%20Database}). 
 
 % -----------------------------------------------
@@ -57,7 +62,7 @@ One of the services listed under ``Available services" is Bisque.
 
 Once the request is approved, use the 
 ``Go to BISQUE"~\cite{Bisque-iplant} link to access the 
-Bisque database hosted by iPlant.
+Bisque database hosted by iPlant (see Fig.\ref{fig:pending_request}).
 
 
 \subsection{Analysis code}
@@ -86,21 +91,21 @@ directory, \texttt{\$INDAT} is a path to where the input files are,
 with the input file names described using a Unix printf-style pattern.
 
 % -----------------------------------------------
-\section{Creating a module}
-\label{sec:creating-a-module}
+%\section{Creating a module}
+%\label{sec:creating-a-module}
 \subsection{Overview of steps}
-
+Before we dive in, let's look at the broad picture of the work ahead of us.
 Following a Bisque module creation tutorial~\cite{Bisque-module-creation}, below are the steps for setting up a working module:
 \begin{enumerate}
-\item Create a module definition XML
-\item Make the module code work with Bisque (either by modifying the module code to use the Bisque API or write a wrapper / conversion glue code)
-\item Create a web server or run Engine Server
-\subitem Engine Service - write configuration file on how Engine Service will run your code 
-\item Register module with the Bisque system 
+\item Creating a module definition XML document
+\item Making the module code work with Bisque (either by modifying the module code to use the Bisque API or by writing a wrapper / conversion glue code)
+\item Creating a web server or running the Engine Server
+\subitem Engine Service - a configuration file on how the Engine Service will run your code 
+\item Registering the module with Bisque 
 \end{enumerate}
 
 
-
+\input{module_definition.tex}
 
 % -----------------------------------------------
 {\small

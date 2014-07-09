@@ -1,0 +1,167 @@
+\section{Creating a module definition XML document}
+\label{sec:creating-module-definition-XML}
+
+This section is based on the instructions listed on the Bisque Module Specification page~\cite{Bisque-module-specification}.
+After providing an overview of the module system, I outline its various components, constructing an example that uses my analysis code. 
+%(see Section~\ref{sec:analysis_code).
+
+\subsection{Module system overview}
+
+The Bisque Module System aims to provide services to the user-created analysis code, so-called analysis module. Every module, before it is used, must be declared to Bisque through module registration. 
+
+To be used with the Bisque system each module must define a module-definition file, which allows the module to be registered. 
+Registration involves posting the module definition file to a module manager, %??? 
+which can then dispatch execution requests back to the module. The  EngineScripts wraps local scripts and creates a web-service based on module definition file. The EngineServer (installed with Bisque) will manage registration and execution of the local script. It will issue an execution request (MexRequestSpecification), which contains parameters needed to execute the module on behalf of a user. 
+
+
+\subsection{ Module definition file}
+
+The module-definition file is an XML-encoded file that provides attributes associated with the module. Each module must have a unique name and formally specify its input and output parameters. In addition to input and output, you can specify the coding language, authorship, and code version. 
+
+The module definition document is actually a templated MEX (Module EXecution) document. The template parameters, for example, can be used to render the user interface (UI) for a module if the programmer does not want to fully implement the UI. If, however, the programmer would like to provide a fully customized user interface then the input parameters can be configured to do so. But, let's leave customization for later: it is easiest to start with the automatically provided UI and then customize it if the need arises. 
+%On the Bisque Module specification page (http://biodev.ece.ucsb.edu/projects/bisquik/wiki/Developer/ModuleSystem/BisqueModuleSpecification) one can find an example of a module definition file. 
+
+Every module definition file, at a minimum, should specify the following definitions
+\begin{itemize}
+\setlength{\itemsep}{0.1mm}
+\item inputs
+\item outputs
+\item title
+\item description
+\item authors
+\item thumbnail
+\end{itemize}
+
+This means that we can create a bare-bones template (where words in ALL-CAPS are meant to be replaced).
+%--- is there another module type other than  type="runtime"?
+\begin{verbatim}
+<module name="MY_MODULE" type="runtime">
+    <tag name="inputs">
+    </tag>
+    
+    <tag name="outputs">
+    </tag>
+
+    <tag name="title" value="TITLE" />     
+    <tag name="description" value="This module DESCRIPTION" />
+    <tag name="authors" value="AUTHORS" /> 
+    <tag name="thumbnail" type="file" value="public/thumbnail.png" />
+</module>
+\end{verbatim}
+
+
+\subsection{\texttt{inputs} tag}
+All input needed by the module has to be declared inside the 
+\texttt{<tag name="inputs">}  block (i.e. between the \texttt{<tag ...>} and \texttt{</tag>}). The input can be of the following types:
+\begin{itemize*}
+\item 
+\texttt{system-input}: element required by the module and filled by the system
+\item 
+\texttt{formal-input}: element required by the module and filled by the UI
+\end{itemize*}
+
+
+\subsubsection{\texttt{system-input} type}
+Below is the list of names that are used with the \texttt{system-input} type ((!) indicates a required name):
+\begin{itemize*}
+\item 
+\texttt{mex\_url} (!): a URL pointing to the MEX document; necessary for the module to do anything meaningful
+\item 
+\texttt{bisque\_token} (!): a token that is used for authentication, without it module can't write anything
+\item
+\texttt{module\_url}:  a URL to the module % where does it come from?
+\end{itemize*}
+
+Now we can add the following required inputs to our module definition file:
+\begin{verbatim}
+...
+    <tag name="inputs">
+        <tag name="mex_url"      type="system-input" />
+        <tag name="bisque_token" type="system-input" />
+    </tag>
+...
+\end{verbatim}
+%Where are the values for e.g. mex_url stored?
+
+\subsubsection{\texttt{formal-input} type}
+The formal inputs may be of two ways:
+\begin{itemize*}
+\item 	a link to an existing resource
+\item	a complete resource in-place 
+\end{itemize*}
+
+Let's look at them closer.
+
+\subsubsection*{Existing resource}
+A link to an existing resource is declared as a tag with a type of a resource you would like to point to. For example, to link to an image
+\begin{verbatim}
+<tag name="image_url" type="image" />
+\end{verbatim}
+
+A link to a resource will get send to the module inside the MEX document looking like this:
+\begin{verbatim}
+<tag name="image_url" type="image" value="http://host/path" />
+\end{verbatim}
+%---
+%How will it know about the value?
+%---
+The name here is a user-defined name and will only be used by the module to find the right resource. 
+%---
+%where does it "find" it?
+%---
+The type can be any resource type existing in the system. For example you can use: image, dataset or tag. 
+%----
+%What are the existing resource types other than image, dataset and tag?
+%What kind of type is dataset? What's the input -- a collection of files?
+%----
+Automated interface will try to generate an appropriate resource picker, for example, a browser for an image or a dataset-selection dialog box for a dataset. 
+% --- Does it mean that it has to be pre-uploaded?
+
+\subsubsection*{A resource in-place}
+Any resource and tag with a non-resource (user-given) type is a resource in-place. They are useful to pass information that should not be stored in the system, such as a numeric parameter or a graphical annotation.
+\begin{verbatim}
+<tag name="radius" type="number" />
+\end{verbatim}
+
+%<tag name="radius" value="6.5" type="number" />
+%Note that the above example provides a default value. 
+%Obviously these can be templated! I'll describe possible UI configurations in the templating section.
+%An in-place resource will be send to the module inside the MEX document looking like this:
+%<tag name="radius" value="2.3" type="number" />
+
+Continuing with our analysis code example, we see that our binary takes several input parameters.
+\begin{verbatim}
+--has-tip-growth 
+--min-blob-size=5 
+--max-blob-size=50 
+--num-threads=8 
+$INDAT/Pos001_S001_t%02d_z%02d_ch00.tif
+\end{verbatim}
+
+As was described above, our numeric parameters are the ``resource in-place" (the boolean parameter \texttt{--has-tip-growth} can easily be made numeric by using values 1 and 0), and the image input directory is the ``existing resource".
+Now we can add them (and their default values) to the inputs tag in our module definition file:
+\begin{verbatim}
+...
+    <tag name="inputs">
+        ...
+        <tag name="has-tip-growth" value="1" type="number" />
+        <tag name="min-blob-size" value="5" type="number" />
+        <tag name="max-blob-size" value="50" type="number" />
+        <tag name="num-threads" value="8" type="number" />
+        
+        <tag name="image_url" type="image" />
+    </tag>
+...
+\end{verbatim}
+
+
+%
+%module interface templates vs. resource templates
+%
+%---
+%what are the allowed types of input gobject? point
+%polygon
+%…
+%
+%
+%---
