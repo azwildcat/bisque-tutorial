@@ -37,6 +37,7 @@ outlines steps needed to get started with Bisque~\cite{Bisque}.
 %(\url{http://www.bioimage.ucsb.edu/downloads/Bisque%20Database}). 
 
 % -----------------------------------------------
+\setcounter{section}{-1} % start the section numbering from 0
 \section{Preliminary steps}
 \label{sec:Preliminary}
 \subsection{iPlant account}
@@ -71,7 +72,7 @@ Bisque database hosted by iPlant (see Fig.\ref{fig:pending_request}).
 Select an existing program to turn into a Bisque module.
 This analysis code can be written in any language, and with the help
 of the Bisque API, it can be ``wrapped" and connected to the
-Bisque services.
+Bisque services (this is what this tutorial is about).
 
 For the purposes of this tutorial, I am using a C++ program
 that finds points of interest in images. 
@@ -83,29 +84,44 @@ I created an executable binary, which I can run on the command line.
 \end{verbatim}
 
 The above command shows the parameters that are required
-to run the code: \texttt{\$OUTDIR} is a path to an output
+to run the code, where \texttt{\$OUTDIR} is a variable that holds the path to an output
 directory, \texttt{\$INDAT} is a path to where the input files are, 
-%and \texttt{Pos001_S001_t\%02d_z\%02d_ch00}
-%is the Unix printf-style pattern, which describes the format of the 
-%input file names.
-with the input file names described using a Unix printf-style pattern.
+and \texttt{Pos001\_S001\_t\%02d\_z\%02d\_ch00}
+is the Unix printf-style pattern, which describes the format of the 
+input file names.
+%with the input file names described using a Unix printf-style pattern.
 
 % -----------------------------------------------
-%\section{Creating a module}
-%\label{sec:creating-a-module}
 \subsection{Overview of steps}
-Before we dive in, let's look at the broad picture of the work ahead of us.
-Following a Bisque module creation tutorial~\cite{Bisque-module-creation}, below are the steps for setting up a working module:
+Before we dive in, let's look at a broad picture of the work ahead of us. Don't worry if these steps don't yet make a lot of sense: I will describe each step in more detail in the subsequent sections.
+
+The general idea is this: you have your code that you would like to run using the Bisque system. To do that, you need to describe your module/analysis code to Bisque, i.e. tell Bisque the values for your code's parameters as well as the location/type of the input files. This is taken care of by the module definition XML document. The module definition file describes a web interface that the system will present to you, so that you can set these parameters. You will also need to specify the format/structure and types of the output files in that XML file. %We can think of it as a ``design document" and a ``contract" of sorts. 
+
+The next step is to make sure that your code can talk to the Bisque system. This is accomplished by using the Bisque API~\cite{BisqueAPI}. This API allows you to write what's called  a ``wrapper": a layer of conversion code between your analysis/module code and the Bisque system. It glues together the pieces needed by both layers. Some of its many functions include processing the module definition file, setting up necessary directories, converting data from the Bisque format into the input format expected by your analysis code, running your analysis code and converting the outputs. 
+
+In order to properly test how well your analysis works with Bisque, you need to have access to the Engine Server. The Engine Server is what allows
+Bisque to talk to many modules that may exist on many separate machines.
+A Bisque package called the Engine Service allows the developers to wrap local files, give them URLs and provide the necessary entry points to facilitate communication between the modules and Bisque. Think of it as a translator that converts text from one language, so that a person who speaks a different language can understand it.
+
+Finally, in order to allow the main Bisque server to access your module, you need to register the Engine Server that's running your module. The registration makes the main Bisque server aware of the existence of your server, and allows them to ``talk" to each other and exchange files.
+
+
+In summary, below are the steps for setting up a working module taken from the Bisque module creation tutorial~\cite{Bisque-module-creation}:
 \begin{enumerate}
 \item Creating a module definition XML document
-\item Making the module code work with Bisque (either by modifying the module code to use the Bisque API or by writing a wrapper / conversion glue code)
+\item Making the module code work with Bisque (either by modifying the module code to use the Bisque API or by writing a wrapper (i.e. conversion glue code))
 \item Creating a web server or running the Engine Server
 \subitem Engine Service - a configuration file on how the Engine Service will run your code 
 \item Registering the module with Bisque 
 \end{enumerate}
 
+Let's take a look at each of the steps in more detail.
+
 
 \input{module_definition.tex}
+
+\input{module_wrapper.tex}
+
 
 % -----------------------------------------------
 {\small

@@ -2,21 +2,24 @@
 \label{sec:creating-module-definition-XML}
 
 This section is based on the instructions listed on the Bisque Module Specification page~\cite{Bisque-module-specification}.
-After providing an overview of the module system, I outline its various components, constructing an example that uses my analysis code. 
+After a brief overview of the module system, we'll outline its various components, and construct an example that uses our analysis code. 
 %(see Section~\ref{sec:analysis_code).
 
+
 \subsection{Module system overview}
+Initially, all you have is your analysis code, also known as the analysis module, and you would like to use the Bisque Module System. 
+Every module, before it is used, must be declared to Bisque through module registration. In order to register your module, you must define a module-definition file written in XML.
 
-The Bisque Module System aims to provide services to the user-created analysis code, so-called analysis module. Every module, before it is used, must be declared to Bisque through module registration. 
-
-To be used with the Bisque system each module must define a module-definition file, which allows the module to be registered. 
-Registration involves posting the module definition file to a module manager, %??? 
-which can then dispatch execution requests back to the module. The  EngineScripts wraps local scripts and creates a web-service based on module definition file. The EngineServer (installed with Bisque) will manage registration and execution of the local script. It will issue an execution request (MexRequestSpecification), which contains parameters needed to execute the module on behalf of a user. 
+Through the registration, the module definition file is posted to a module manager, %??? 
+which can then dispatch execution requests back to the module. Don't worry if this doesn't make much sense right now -- an understanding of this process is not required to create a module definition file. Just know that once you create this XML file and register your module, the Engine Server will be using it to wrap the local scripts and create a web-service based on the provided module definitions.
+% The EngineServer (installed with Bisque) will manage registration and execution of the local script. It will issue an execution request (MexRequestSpecification), which contains parameters needed to execute the module on behalf of a user. 
 
 
 \subsection{ Module definition file}
 
-The module-definition file is an XML-encoded file that provides attributes associated with the module. Each module must have a unique name and formally specify its input and output parameters. In addition to input and output, you can specify the coding language, authorship, and code version. 
+The module-definition file is an XML-encoded file that provides attributes associated with the module. 
+
+Each module must have a unique name and formally specify its input and output parameters. In addition to input and output, you can specify the coding language, authorship, and code version. 
 
 The module definition document is actually a templated MEX (Module EXecution) document. The template parameters, for example, can be used to render the user interface (UI) for a module if the programmer does not want to fully implement the UI. If, however, the programmer would like to provide a fully customized user interface then the input parameters can be configured to do so. But, let's leave customization for later: it is easiest to start with the automatically provided UI and then customize it if the need arises. 
 %On the Bisque Module specification page (http://biodev.ece.ucsb.edu/projects/bisquik/wiki/Developer/ModuleSystem/BisqueModuleSpecification) one can find an example of a module definition file. 
@@ -32,7 +35,7 @@ Every module definition file, at a minimum, should specify the following definit
 \item thumbnail
 \end{itemize}
 
-This means that we can create a bare-bones template (where words in ALL-CAPS are meant to be replaced).
+Let's create a bare-bones template with the required tags, where words in ALL-CAPS are meant to be replaced.
 %--- is there another module type other than  type="runtime"?
 \begin{verbatim}
 <module name="MY_MODULE" type="runtime">
@@ -138,6 +141,8 @@ Continuing with our analysis code example, we see that our binary takes several 
 $INDAT/Pos001_S001_t%02d_z%02d_ch00.tif
 \end{verbatim}
 
+
+%%%%%%%%  Names don't have to be the same.
 As was described above, our numeric parameters are the ``resource in-place" (the boolean parameter \texttt{--has-tip-growth} can easily be made numeric by using values 1 and 0), and the image input directory is the ``existing resource".
 Now we can add them (and their default values) to the inputs tag in our module definition file:
 \begin{verbatim}
@@ -154,7 +159,7 @@ Now we can add them (and their default values) to the inputs tag in our module d
 ...
 \end{verbatim}
 
-
+Side note: I chose to keep the names of the tags the same as the analysis code arguments. This is not required, as is just a matter of convenience (I could have just named them param1, param2 and left it to the wrapper to match them to the correct arguments).
 %
 %module interface templates vs. resource templates
 %
